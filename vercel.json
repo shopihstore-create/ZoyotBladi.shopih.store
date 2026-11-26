@@ -1,0 +1,1 @@
+{"headers":[{"source":"/admin.html","headers":[{"key":"Cache-Control","value":"no-store"}]},{"source":"/login.html","headers":[{"key":"Cache-Control","value":"no-store"}]}],"redirects":[{"source":"/migration-v5.sql","destination":"/","permanent":false},{"source":"/INSTALLATION.md","destination":"/","permanent":false}]}
