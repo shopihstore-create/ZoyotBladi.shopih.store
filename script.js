@@ -1,35 +1,12 @@
-const offerSelect = document.querySelector('#offer-select');
-const orderForm = document.querySelector('#cod-form');
-const successBox = document.querySelector('#form-success');
-
-document.querySelectorAll('.choose-offer').forEach((button) => {
-  button.addEventListener('click', () => {
-    if (offerSelect) {
-      offerSelect.value = button.dataset.offer || '';
-      document.querySelector('#order')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      window.setTimeout(() => document.querySelector('input[name="name"]')?.focus(), 550);
-    }
-  });
-});
-
-orderForm?.addEventListener('submit', (event) => {
-  event.preventDefault();
-  if (!orderForm.checkValidity()) {
-    orderForm.reportValidity();
-    return;
-  }
-  if (successBox) {
-    successBox.style.display = 'block';
-    successBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-});
-
-document.querySelectorAll('.faq-list details').forEach((detail) => {
-  detail.addEventListener('toggle', () => {
-    if (detail.open) {
-      document.querySelectorAll('.faq-list details').forEach((other) => {
-        if (other !== detail) other.removeAttribute('open');
-      });
-    }
-  });
-});
+const url='https://aghuiwywjipiuuqcxwre.supabase.co';
+const key='sb_publishable_UNXps87XRq-ck7yBL_N_UA_qqqlcvVR';
+const form=document.querySelector('#cod-form'), select=document.querySelector('#offer-select');
+let requestId=crypto.randomUUID(), widget, token='';
+const status=document.createElement('p');status.setAttribute('role','status');form.append(status);
+const submit=form.querySelector('[type=submit]');submit.disabled=true;
+const choices=[...document.querySelectorAll('[data-offer],[data-pick]')];
+choices.forEach(b=>{b.removeAttribute('data-pick');b.disabled=true;b.setAttribute('aria-disabled','true');b.addEventListener('click',e=>{e.preventDefault();if(b.dataset.product){select.value=b.dataset.product;form.scrollIntoView({behavior:'smooth'});}})});
+window.initTurnstile=()=>{widget=turnstile.render('#cod-check',{sitekey:'0x4AAAAAAGUIKpksqbLXieUr',action:'cod',callback:t=>{token=t;},'expired-callback':()=>{token='';},'error-callback':()=>{token='';}})};
+async function load(){try{const r=await fetch(url+'/rest/v1/products?select=id,name,price,volume_liters,regions!inner(slug)&regions.slug=eq.ghiyatha&active=eq.true',{headers:{apikey:key}});if(!r.ok)throw Error();const products=await r.json();select.replaceChildren(new Option('اختار العرض',''));for(const p of products)select.add(new Option(p.name+' — '+p.price+' DH',p.id));choices.forEach((b,i)=>{const p=products.find(x=>Number(x.volume_liters)===[1,2,5][i]);const price=b.closest('.offer-card')?.querySelector('.offer-price span');if(price)price.textContent=p?p.price+' DH':'غير متوفر';if(p){b.dataset.product=p.id;b.disabled=false;b.removeAttribute('aria-disabled');}});submit.disabled=!products.length;status.textContent=products.length?'':'المنتجات غير متوفرة حالياً';}catch{status.textContent='تعذر تحميل المنتجات';}}
+form.addEventListener('submit',async e=>{e.preventDefault();if(!token){status.textContent='أكد التحقق الأمني أولاً';return;}submit.disabled=true;const d=new FormData(form);try{const r=await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request_id:requestId,product_id:d.get('offer'),name:d.get('name'),city:d.get('city'),phone:d.get('phone').replace(/[\s()-]/g,''),address:d.get('address'),token})});const result=await r.json();if(!r.ok)throw Error();status.textContent='تسجل الطلب رقم '+result.number;form.reset();requestId=crypto.randomUUID();}catch{status.textContent='تعذر تأكيد الطلب. حاول مرة أخرى بنفس المعلومات.';}finally{token='';if(widget!==undefined)turnstile.reset(widget);submit.disabled=false;}});
+document.querySelectorAll('.faq-question').forEach(b=>b.addEventListener('click',()=>b.closest('.faq-item')?.classList.toggle('active')));load();
