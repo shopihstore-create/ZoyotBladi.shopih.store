@@ -18,14 +18,10 @@ orderForm?.addEventListener('submit', (event) => {
     orderForm.reportValidity();
     return;
   }
-  const submitButton = orderForm.querySelector('.form-submit');
-  submitButton.disabled = true;
-  submitButton.innerHTML = 'كنأكدو الطلب ديالك…';
-  window.setTimeout(() => {
-    submitButton.style.display = 'none';
+  if (successBox) {
     successBox.style.display = 'block';
     successBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, 650);
+  }
 });
 
 document.querySelectorAll('.faq-list details').forEach((detail) => {
